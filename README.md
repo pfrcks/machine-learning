@@ -271,3 +271,15 @@ x += - learning_rate * m / (np.sqrt(v) + eps)
 * New dataset is large and similar to the original dataset. Since we have more data, we can have more confidence that we won’t overfit if we were to try to fine-tune through the full network.
 * New dataset is small but very different from the original dataset. Since the data is small, it is likely best to only train a linear classifier. Since the dataset is very different, it might not be best to train the classifier form the top of the network, which contains more dataset-specific features. Instead, it might work better to train the SVM classifier from activations somewhere earlier in the network.
 * New dataset is large and very different from the original dataset. Since the dataset is very large, we may expect that we can afford to train a ConvNet from scratch. However, in practice it is very often still beneficial to initialize with weights from a pretrained model. In this case, we would have enough data and confidence to fine-tune through the entire network.
+
+### Paper
+
+DIVE(Distributional inclusion vector embedding) difference from skipgram
+
+* all word embeddings and context embeddings are contrained to be non negative
+* the weights of negative sampling for each word is inversely proportional to its frequency
+
+DIVE was originally designed to perform unsupervised hypernymy task detection and its goal is to preserve the inclusion relation between two context features in the sparse bag of words
+
+* When the co-occured context histogram of y includes that of word x, it means for all context words c in the vocalbulary v, c will co-occur more times with y than x.
+* each basis index of DIVE corresponds to a topic and the embedding value at that index represents how often the word appears in the topic

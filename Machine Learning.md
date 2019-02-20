@@ -2,11 +2,11 @@
 <!-- vim-markdown-toc GFM -->
 
 * [Preprocessing](#preprocessing)
-    * [Scaling](#scaling)
+        * [Scaling](#scaling)
 * [Bias and Variance](#bias-and-variance)
-    * [Bias](#bias)
-    * [Variance](#variance)
-    * [Bias Variance Decomposition of Squared Error](#bias-variance-decomposition-of-squared-error)
+        * [Bias](#bias)
+        * [Variance](#variance)
+        * [Bias Variance Decomposition of Squared Error](#bias-variance-decomposition-of-squared-error)
 * [Regularization](#regularization)
 * [Overfitting](#overfitting)
 * [Class Imbalance](#class-imbalance)
@@ -15,25 +15,25 @@
 * [Naive Bayes](#naive-bayes)
 * [Performance Metrics](#performance-metrics)
 * [Evaluating ML Models](#evaluating-ml-models)
-    * [Accuracy](#accuracy)
-    * [Sensitivity](#sensitivity)
-    * [Specificity](#specificity)
-    * [False Positive Rate](#false-positive-rate)
-    * [Precision](#precision)
-    * [What should we use?](#what-should-we-use)
-    * [ROC Curver(Receiver Operating Curve)](#roc-curverreceiver-operating-curve)
-    * [AUC](#auc)
+        * [Accuracy](#accuracy)
+        * [Sensitivity](#sensitivity)
+        * [Specificity](#specificity)
+        * [False Positive Rate](#false-positive-rate)
+        * [Precision](#precision)
+        * [What should we use?](#what-should-we-use)
+        * [ROC Curver(Receiver Operating Curve)](#roc-curverreceiver-operating-curve)
+        * [AUC](#auc)
 * [Improving training/test](#improving-trainingtest)
 * [Meta Algorithms](#meta-algorithms)
-    * [Adaboost](#adaboost)
-    * [Gradient Boosted Decision Tree](#gradient-boosted-decision-tree)
-    * [Ensemble Techniques](#ensemble-techniques)
+        * [Adaboost](#adaboost)
+        * [Gradient Boosted Decision Tree](#gradient-boosted-decision-tree)
+        * [Ensemble Techniques](#ensemble-techniques)
 * [Decision Trees](#decision-trees)
 * [Paper](#paper)
 
 <!-- vim-markdown-toc -->
 
-#### Preprocessing
+### Preprocessing
 
 ##### Scaling
 
@@ -43,7 +43,7 @@
 * Standardization to mean=0, std=1
 * Remove outliers
 
-#### Bias and Variance
+### Bias and Variance
 
 ##### Bias
 
@@ -63,7 +63,7 @@ Error from sensitivity to small fluctuations in the training set. higher varianc
 
 E[(y-fcap)^2] = sigma^2 + Var[fcap] + Bias[fcap]^2 there sigma^2 is the irreducible error
 
-#### Regularization
+### Regularization
 
 * L2 regularization or Ridge Regression cannot zero out coefficients.
 * L1 regularization or Lasso Regression can zero out coefficients(good for sparse data).
@@ -72,31 +72,31 @@ E[(y-fcap)^2] = sigma^2 + Var[fcap] + Bias[fcap]^2 there sigma^2 is the irreduci
 * Least absolute deviations is robust in that it is resistant to outliers in the data. 
 
 
-#### Overfitting
+### Overfitting
 
 Early Stopping, Data argumentation(numbers of parameter is much smaller than the data ), cross-validation, Regularization (L1, L2), Dropout...
 
-#### Class Imbalance
+### Class Imbalance
 
 * Get more data
 * Generate synthetic data
 * Undersampling/Oversampling
 * Regularization
 
-#### Classifier Types
+### Classifier Types
 
 Generative classifiers learn a model of the joint probability, p(x, y), of the inputs x and the label y, and make their predictions by using Bayes rules to calculate p(ylx), and then picking the most likely label y. Discriminative classifiers model the posterior p(ylx) directly, or learn a direct map from inputs x to the class labels.
 
-#### Type I and II errors
+### Type I and II errors
 
 * Type I error is false positive
 * Type II error is false negative
 
-#### Naive Bayes
+### Naive Bayes
 
 What it essentially does it find the posterior probability given the prior. Called **Naive** because it assumes that X|Y is normally distributed with zero covariance.
 
-#### Performance Metrics
+### Performance Metrics
 
 * Accuracy sucks as a metric. [Misleading](https://en.wikipedia.org/wiki/Accuracy_paradox).
 * Better to use Precision, Recall and ROC curves.
@@ -107,7 +107,7 @@ Precision is the number of positive predictions divided by the total number of p
 * ROC curves: Plot sensitivity vs 1-specificity. ROC stands for Receiver Operating Characteristic.
 * F1 Score is `2*((precision*recall)/(precision+recall))`. Tells the balance between precision and recall.
 
-#### Evaluating ML Models
+### Evaluating ML Models
 
 ##### Accuracy
 
@@ -167,13 +167,13 @@ Higher value = better classifier
 
 AUC is useful even when there is high class imbalance (unlike classification accuracy)
 
-#### Improving training/test
+### Improving training/test
 
 * Random resampling
 * Stratified resampling
 * Cross Validation
 
-#### Meta Algorithms
+### Meta Algorithms
 
 ##### Adaboost
 
@@ -196,7 +196,7 @@ Gradient boosting builds an ensemble of trees one-by-one, then the predictions o
 * Boosting : Used to convert weak learners to strong ones. Attaches weights proportionate to the amount of misclassification. Primarily used to reduce bias. Boosting(sequential ensemble) is a two-step approach, where one first uses subsets of the original data to produce a series of averagely performing models and then "boosts" their performance by combining them together using a particular cost function (=majority vote). Unlike bagging, in the classical boosting the subset creation is not random and depends upon the performance of the previous models: every new subsets contains the elements that were (likely to be) misclassified by previous models.
 * Stacking : Uses an ensemble to extract features which are then again fed into an ensemble. Stacking is a similar to boosting: you also apply several models to your original data. The difference here is, however, that you don't have just an empirical formula for your weight function, rather you introduce a meta-level and use another model/approach to estimate the input together with outputs of every model to estimate the weights or, in other words, to determine what models perform well and what badly given these input data.
 
-#### Decision Trees
+### Decision Trees
 
 * Non-parametric, supervised learning algorithms
 * Given the training data, a decision tree algorithm divides the feature space into regions. For inference, we first see which region does the test data point fall in, and take the mean label values (regression) or the majority label value (classification).
@@ -211,7 +211,7 @@ https://github.com/ShuaiW/ml-interview#Decision tree
 
 
 
-#### Paper
+### Paper
 
 DIVE(Distributional inclusion vector embedding) difference from skipgram
 

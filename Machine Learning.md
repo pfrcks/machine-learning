@@ -1,4 +1,37 @@
 ## ML Notes
+<!-- vim-markdown-toc GFM -->
+
+* [Preprocessing](#preprocessing)
+    * [Scaling](#scaling)
+* [Bias and Variance](#bias-and-variance)
+    * [Bias](#bias)
+    * [Variance](#variance)
+    * [Bias Variance Decomposition of Squared Error](#bias-variance-decomposition-of-squared-error)
+* [Regularization](#regularization)
+* [Overfitting](#overfitting)
+* [Class Imbalance](#class-imbalance)
+* [Classifier Types](#classifier-types)
+* [Type I and II errors](#type-i-and-ii-errors)
+* [Naive Bayes](#naive-bayes)
+* [Performance Metrics](#performance-metrics)
+* [Evaluating ML Models](#evaluating-ml-models)
+    * [Accuracy](#accuracy)
+    * [Sensitivity](#sensitivity)
+    * [Specificity](#specificity)
+    * [False Positive Rate](#false-positive-rate)
+    * [Precision](#precision)
+    * [What should we use?](#what-should-we-use)
+    * [ROC Curver(Receiver Operating Curve)](#roc-curverreceiver-operating-curve)
+    * [AUC](#auc)
+* [Improving training/test](#improving-trainingtest)
+* [Meta Algorithms](#meta-algorithms)
+    * [Adaboost](#adaboost)
+    * [Gradient Boosted Decision Tree](#gradient-boosted-decision-tree)
+    * [Ensemble Techniques](#ensemble-techniques)
+* [Decision Trees](#decision-trees)
+* [Paper](#paper)
+
+<!-- vim-markdown-toc -->
 
 #### Preprocessing
 
@@ -116,7 +149,7 @@ misclassification costs
 * The AUC value is equivalent to the probability that a randomly chosen positive example i s ranked higher than a randomly chosen negative example. When data sets are imbalanced, ROC/AUC is more stable than Recall, F1, precision. Most binary classifiers give a prediction probability for positive and negative classes. If you set a threshold say, 0.6, you will get a Recall(TPR) and False alarm(FPR). then you vary this threshold value, you will get a group of points. threshold value = 0 corresponds to the point (1,0) while threshold value = 1 corresponds to point(0,0)
 
 
-When to use ** PR **
+When to use **PR**
 
 * show the fraction of predictions that are false positives
 * well suited for tasks with lots of negative instances

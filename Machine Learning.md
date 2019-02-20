@@ -1,13 +1,13 @@
 ## ML Notes
 
-<!-- vim-markdown-toc GFM -->
+<!-- toc -->
 
 - [Preprocessing](#preprocessing)
-        * [Scaling](#scaling)
+    + [Scaling](#scaling)
 - [Bias and Variance](#bias-and-variance)
-        * [Bias](#bias)
-        * [Variance](#variance)
-        * [Bias Variance Decomposition of Squared Error](#bias-variance-decomposition-of-squared-error)
+    + [Bias](#bias)
+    + [Variance](#variance)
+    + [Bias Variance Decomposition of Squared Error](#bias-variance-decomposition-of-squared-error)
 - [Regularization](#regularization)
 - [Overfitting](#overfitting)
 - [Class Imbalance](#class-imbalance)
@@ -16,23 +16,24 @@
 - [Naive Bayes](#naive-bayes)
 - [Performance Metrics](#performance-metrics)
 - [Evaluating ML Models](#evaluating-ml-models)
-        * [Accuracy](#accuracy)
-        * [Sensitivity](#sensitivity)
-        * [Specificity](#specificity)
-        * [False Positive Rate](#false-positive-rate)
-        * [Precision](#precision)
-        * [What should we use?](#what-should-we-use)
-        * [ROC Curver(Receiver Operating Curve)](#roc-curverreceiver-operating-curve)
-        * [AUC](#auc)
+    + [Accuracy](#accuracy)
+    + [Sensitivity](#sensitivity)
+    + [Specificity](#specificity)
+    + [False Positive Rate](#false-positive-rate)
+    + [Precision](#precision)
+    + [What should we use?](#what-should-we-use)
+    + [ROC Curver(Receiver Operating Curve)](#roc-curverreceiver-operating-curve)
+    + [AUC](#auc)
 - [Improving training/test](#improving-trainingtest)
 - [Meta Algorithms](#meta-algorithms)
-        * [Adaboost](#adaboost)
-        * [Gradient Boosted Decision Tree](#gradient-boosted-decision-tree)
-        * [Ensemble Techniques](#ensemble-techniques)
+    + [Adaboost](#adaboost)
+    + [Gradient Boosted Decision Tree](#gradient-boosted-decision-tree)
+    + [Ensemble Techniques](#ensemble-techniques)
 - [Decision Trees](#decision-trees)
 - [Paper](#paper)
 
-<!-- vim-markdown-toc -->
+<!-- tocstop -->
+
 ### Preprocessing
 
 ##### Scaling

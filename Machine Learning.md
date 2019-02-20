@@ -1,4 +1,5 @@
 ## ML Notes
+
 <!-- vim-markdown-toc GFM -->
 
 * [Preprocessing](#preprocessing)
@@ -32,7 +33,6 @@
 * [Paper](#paper)
 
 <!-- vim-markdown-toc -->
-
 ### Preprocessing
 
 ##### Scaling

@@ -1,6 +1,39 @@
-## Deep Learning Notes
+# Deep Learning Notes
 
-### Deep Learning Practitioner's Guide
+<!-- toc -->
+
+- [Deep Learning Practitioner's Guide](#deep-learning-practitioners-guide)
+    + [Assorted Tips and Tricks](#assorted-tips-and-tricks)
+    + [Preprocessing](#preprocessing)
+    + [Correlation](#correlation)
+    + [Dropout](#dropout)
+    + [Variance Calibration](#variance-calibration)
+    + [During Training](#during-training)
+    + [Activation Functions](#activation-functions)
+    + [Regularizations](#regularizations)
+  * [Notes from CS231n](#notes-from-cs231n)
+    + [Linear Classify](#linear-classify)
+    + [Optimization - I](#optimization---i)
+    + [Neural Networks - I](#neural-networks---i)
+    + [Neural Networks - II](#neural-networks---ii)
+      - [Preprocessing](#preprocessing-1)
+      - [Weight Initialization](#weight-initialization)
+      - [Regularization](#regularization)
+      - [Loss functions](#loss-functions)
+    + [Neural Networks - III](#neural-networks---iii)
+      - [Parameter Updates](#parameter-updates)
+      - [Adaptive Learning rates](#adaptive-learning-rates)
+    + [Convolutional Networks](#convolutional-networks)
+    + [Transfer Learning](#transfer-learning)
+- [Notes on CNNs](#notes-on-cnns)
+    + [AlexNet](#alexnet)
+    + [VGGNet](#vggnet)
+    + [GoogLeNet](#googlenet)
+
+<!-- tocstop -->
+
+## Deep Learning Practitioner's Guide
+
 #### Assorted Tips and Tricks
 
 * Always shuffle
@@ -25,15 +58,16 @@
 
 Another form pre-processing normalizes each dimension so that the min and max along the dimension is -1 and 1 respectively. It only makes sense to apply this pre-processing if you have a reason to believe that different input features have different scales (or units), but they should be of approximately equal importance to the learning algorithm. In case of images, the relative scales of pixels are already approximately equal (and in range from 0 to 255), so it is not strictly necessary to perform this additional pre-processing step.
 
-#### Correlation 
+#### Correlation
 
-In theory, it can also be helpful to remove correlations between features by using PCA or ZCA whitening. However, in practice you may run into numerical stability issues since you will need to invert a matrix. So this is worth considering, but takes some more careful application. 
+In theory, it can also be helpful to remove correlations between features by using PCA or ZCA whitening. However, in practice you may run into numerical stability issues since you will need to invert a matrix. So this is worth considering, but takes some more careful application.
 
 #### Dropout
 
 Dropout provides an easy way to improve performance. It’s trivial to implement and there’s little reason to not do it. Remember to tune the dropout probability, and to not forget to turn off Dropout and to multiply the weights by (namely by 1-dropout probability) at test time. Also, be sure to train the network for longer. Unlike normal training, where the validation error often starts increasing after prolonged training, dropout nets keep getting better and better the longer you train them. So be patient.
 
  During training, dropout can be interpreted as sampling a Neural Network within the full Neural Network, and only updating the parameters of the sampled network based on the input data. (However, the exponential number of possible sampled networks are not independent because they share the parameters.) During testing there is no dropout applied, with the interpretation of evaluating an averaged prediction across the exponentially-sized ensemble of all sub-networks (more about ensembles in the next section). I
+
 #### Variance Calibration
 
 One problem with the above suggestion is that the distribution of the outputs from a randomly initialized neuron has a variance that grows with the number of inputs. It turns out that you can normalize the variance of each neuron's output to 1 by scaling its weight vector by the square root of its fan-in (i.e., its number of inputs), which is as follows:
@@ -44,7 +78,7 @@ This is for calibrating neurons without ReLU. For ReLU use He et al. initializat
 #### During Training
 
 * Filters and Pooling Size : it is important to employ a small filter (e.g., 3times 3) and small strides (e.g., 1) with zeros-padding, which not only reduces the number of parameters, but improves the accuracy rates of the whole deep network. Meanwhile, a special case mentioned above, i.e., 3times 3 filters with stride 1, could preserve the spatial size of images/feature maps. For the pooling layers, the common used pooling size is of 2times 2.
-* Learning rate. In addition, as described in a blog by Ilya Sutskever [2], he recommended to divide the gradients by mini batch size. Thus, you should not always change the learning rates (LR), if you change the mini batch size. 
+* Learning rate. In addition, as described in a blog by Ilya Sutskever [2], he recommended to divide the gradients by mini batch size. Thus, you should not always change the learning rates (LR), if you change the mini batch size.
 * ![ Fine tuning](/home/amol/Downloads/table.png  "Fine tuning")
 
 #### Activation Functions
@@ -66,7 +100,7 @@ This is for calibrating neurons without ReLU. For ReLU use He et al. initializat
 * Dropout : discussed above
 
 
-### CS231n
+### Notes from CS231n
 
 #### Linear Classify
 
@@ -109,14 +143,14 @@ Xrot_reduced = np.dot(X, U[:,:100])
 * he distribution of the outputs from a randomly initialized neuron has a variance that grows with the number of inputs. the recommended heuristic is to initialize each neuron’s weight vector as: w = np.random.randn(n) / sqrt(n), where n is the number of its inputs. This ensures that all neurons in the network initially have approximately the same output distribution and empirically improves the rate of convergence.
 * Var(w)=2/(nin+nout) : glorot
 * W = np.random.randn(n) * sqrt(2.0/n) : He et al for ReLu
-* Batch Normalization : applying this technique usually amounts to insert the BatchNorm layer immediately after fully connected layers (or convolutional layers, as we’ll soon see), and before non-linearities. 
+* Batch Normalization : applying this technique usually amounts to insert the BatchNorm layer immediately after fully connected layers (or convolutional layers, as we’ll soon see), and before non-linearities.
 
 ##### Regularization
 
 * L1
 * L2
 * Max Norm
-* Dropout : While training, dropout is implemented by only keeping a neuron active with some probability p (a hyperparameter), or setting it to zero otherwise. Test : `H1 = np.maximum(0, np.dot(W1, X) + b1) * p`. 
+* Dropout : While training, dropout is implemented by only keeping a neuron active with some probability p (a hyperparameter), or setting it to zero otherwise. Test : `H1 = np.maximum(0, np.dot(W1, X) + b1) * p`.
 * Inverted Dropout: to prevent test time extra computations.
 ```python
 H1 = np.maximum(0, np.dot(W1, X) + b1)
@@ -193,7 +227,7 @@ x += - learning_rate * m / (np.sqrt(v) + eps)
 * New dataset is large and very different from the original dataset. Since the dataset is very large, we may expect that we can afford to train a ConvNet from scratch. However, in practice it is very often still beneficial to initialize with weights from a pretrained model. In this case, we would have enough data and confidence to fine-tune through the entire network.
 
 
-### Notes on CNN
+## Notes on CNNs
 
 * zero padding `= (k-1)/2` where k is filter size
 * output size `= (w-k+2P)/2 +1` where w is input size, p is padding and s is stride
@@ -209,7 +243,7 @@ x += - learning_rate * m / (np.sqrt(v) + eps)
 
 #### VGGNet
 
-* two 3x3 conv layers has an effective receptive field of 5x5. 
+* two 3x3 conv layers has an effective receptive field of 5x5.
 * 3 conv layers back to back have an effective receptive field of 7x7.
 * As the spatial size of the input volumes at each layer decrease (result of the conv and pool layers), the depth of the volumes increase due to the increased number of filters as you go down the network.
 * Interesting to notice that the number of filters doubles after each maxpool layer. This reinforces the idea of shrinking spatial dimensions, but growing depth.
@@ -217,6 +251,5 @@ x += - learning_rate * m / (np.sqrt(v) + eps)
 #### GoogLeNet
 
 *  one of the first CNN architectures that really strayed from the general approach of simply stacking conv and pooling layers on top of each other in a sequential structure.
-*   9 Inception modules in the whole architecture, 
+*   9 Inception modules in the whole architecture,
 *   No use of fully connected layers! They use an average pool instead, to go from a 7x7x1024 volume to a 1x1x1024 volume. This saves a huge number of parameters.
-

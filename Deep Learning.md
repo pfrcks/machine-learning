@@ -11,7 +11,7 @@
     + [During Training](#during-training)
     + [Activation Functions](#activation-functions)
     + [Regularizations](#regularizations)
-  * [Notes from CS231n](#notes-from-cs231n)
+- [Notes from CS231n](#notes-from-cs231n)
     + [Linear Classify](#linear-classify)
     + [Optimization - I](#optimization---i)
     + [Neural Networks - I](#neural-networks---i)
@@ -99,8 +99,7 @@ This is for calibrating neurons without ReLU. For ReLU use He et al. initializat
 * Max Norm Constraint : this corresponds to performing the parameter update as normal, and then enforcing the constraint by clamping the weight vector vec{w} of every neuron to satisfy parallel vec{w} parallel_2 less than c
 * Dropout : discussed above
 
-
-### Notes from CS231n
+## Notes from CS231n
 
 #### Linear Classify
 

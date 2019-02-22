@@ -209,6 +209,13 @@ Gradient boosting builds an ensemble of trees one-by-one, then the predictions o
     - instability: sensitive to training set rotation due to its orthogonal decision boundaries
 https://github.com/ShuaiW/ml-interview#Decision tree
 
+* gini : g = ((1 – (g1_1^2 + g1_2^2)) * (ng1/n)) + ((1 – (g2_1^2 + g2_2^2)) * (ng2/n)), where g is the gini index for the split point, g1_1 is the proportion of instances in group 1 for class 1, g1_2 for class 2, g2_1 for group 2 and class 1, g2_2 group 2 class 2, ng1 and ng2 are the total number of instances in group 1 and 2 and n are the total number of instances we are trying to group from the parent node.
+* entropy = - p(a)*log(p(a)) - p(b)*log(p(b))
+* Information gain: based towards multivalued attributes.
+* Gain ratio: prefer unbalanced splits in which on partition is much smaller than the other.
+* Gini Index:
+    * based towards multivalued attributes.
+    * favor equal-sized partitions
 
 
 

@@ -35,6 +35,7 @@
     + [AlexNet](#alexnet)
     + [VGGNet](#vggnet)
     + [GoogLeNet](#googlenet)
+    + [ResNet](#resnet)
 - [Object Detection](#object-detection)
     + [R-CNN(Region based CNN)](#r-cnnregion-based-cnn)
     + [Fast R-CNN](#fast-r-cnn)
@@ -42,6 +43,9 @@
     + [YOLO](#yolo)
 - [Semantic Segmentation](#semantic-segmentation)
     + [FCN](#fcn)
+- [Classification](#classification)
+- [Classification + Localization](#classification--localization)
+- [Instance Segmentation](#instance-segmentation)
 
 <!-- tocstop -->
 
@@ -66,6 +70,10 @@
 * Decrease momentum with epochs
 * Gradient Normalization
 * LR -> ratio between the update norm and the weight norm ~ 10-3.
+* You want weight_updates / weight_magnitudes around 0.001, if high decrease LR
+* Train ensembles, at test average their results
+* Initialize ReLU with slightly positive bias to avoid dead neurons
+* Use float32 or float16 instead of float64
 
 #### Preprocessing
 
@@ -313,6 +321,7 @@ A Highway Layer is a type of Neural Network layer that uses a gating mechanism t
 #### AlexNet
 
 * Used ReLU
+* Stacked conv layers
 * Data Aug :  image translations, horizontal reflections, and patch extractions.
 * Implement dropout
 
@@ -328,6 +337,11 @@ A Highway Layer is a type of Neural Network layer that uses a gating mechanism t
 *  one of the first CNN architectures that really strayed from the general approach of simply stacking conv and pooling layers on top of each other in a sequential structure.
 *   9 Inception modules in the whole architecture,
 *   No use of fully connected layers! They use an average pool instead, to go from a 7x7x1024 volume to a 1x1x1024 volume. This saves a huge number of parameters.
+
+#### ResNet
+
+Let H(x) be a function that you desire to obtian. In a typical net you would compute a squence of steps ReLu(ReLu(xw1+b1)*w2+b2) to transform x to H(x). Instead, in a ResNet you compute a delta to be added to the original input to obtain H(x).
+What is nice about it is that in plain nets, gradients must flow through all the transforma- tions. Instead, in residual nets because it is addition (distributes the gradient equally to all its children), the gradient with flow through the (weights, ReLU) but will also skip this transformations and will go directly to the previous part and flow directly to the previous block. So the gradients can skip all the transformations and go directly to the first layer. In this way, you can train very fast the first layer which is doing simple statistics, and the rest of layers will learn to add to the single in between to make it work at the end.
 
 ## Object Detection
 
@@ -371,6 +385,12 @@ How YOLO works is that we take an image and split it into an SxS grid, within ea
 
 Segmentation task is different from classification task because it requires predicting a class for each pixel of the input image, instead of only 1 class for the whole input. Classification needs to understand what is in the input (namely, the context). However, in order to predict what is in the input for each pixel, segmentation needs to recover not only what is in the input, but also where.
 
+Three common strategies are used:
+
+* Multiscale
+* Refinement
+* Upsampling
+
 #### FCN
 
 Fully Convolutional Networks (FCNs) owe their name to their architecture, which is built only from locally connected layers, such as convolution, pooling and upsampling. Note that no dense layer is used in this kind of architecture. This reduces the number of parameters and computation time. Also, the network can work regardless of the original image size, without requiring any fixed number of units at any stage, givent that all connections are local. To obtain a segmentation map (output), segmentation networks usually have 2 parts :
@@ -384,3 +404,28 @@ A skip connection is a connection that bypasses at least one layer. Here, it is 
 
 Metrics: Per pixel accuracy, Intersection over union
 
+## Classification
+
+Train a classification model with softmax loss. The input is the entire image and the output are C probabilities (one per class) of being in the image.
+
+## Classification + Localization
+
+*  Train (or download) a classification model (AlexNet, VGG, GoogLeNet)
+* Attach a new fully-connected ”regression head” to the network to compute bounding boxes (x,y,w,h)
+* Train the regression head only with SGD and L2 loss with the bounding boxes as ground-truth.You can backpropagate only till the regression head or the entire network. 2nd option will improve a little bit the accuracy at a expense of higher training computation cost. If you choose option 2 you will be changing the original Conv layers on which the classification head is trained. So there are two options. Or you have two independent networks: the original one (Conv+classification head) and the other one (Modified Conv+regression head). Or you train both at the same time so you will have only one model(classification head + regression head).
+* Finally:
+    - Classification head: Output are C numbers(one per class)
+    - Regression head: Class agnostic gives 4 numbers(BB), class specific gives C*4
+
+## Instance Segmentation
+
+Detect instance, generate mask. Similar pipelines to object detection.
+
+1. External segment proposals that outputs pixels not boxes
+2. Produce a BBox of the segmented region
+3. Take the BBox image an run it through a CNN
+4. Take the BBox image and set the non segment proposal pixels to the mean image value of the dataset an run it through a CNN
+5. Concatenate booth features an run it through a classifier
+6. Refine the proposed region
+
+Very similar to RCNN. Another FRCNN type which From the high resolution feature map propose regions, then reshape boxes and finally mask background and predict object class.

@@ -23,9 +23,15 @@
     + [Neural Networks - III](#neural-networks---iii)
       - [Parameter Updates](#parameter-updates)
       - [Adaptive Learning rates](#adaptive-learning-rates)
-    + [Convolutional Networks](#convolutional-networks)
+    + [Layers](#layers)
+      - [Convolutional and Pooling Layer](#convolutional-and-pooling-layer)
+      - [Batch Norm Layer](#batch-norm-layer)
+      - [Upsampling Layer(Deconv/Transposed conv)](#upsampling-layerdeconvtransposed-conv)
+      - [Skip connections](#skip-connections)
+      - [Fully connected layer](#fully-connected-layer)
+      - [Highway Layer](#highway-layer)
     + [Transfer Learning](#transfer-learning)
-- [Notes on CNNs](#notes-on-cnns)
+- [Popular architectures](#popular-architectures)
     + [AlexNet](#alexnet)
     + [VGGNet](#vggnet)
     + [GoogLeNet](#googlenet)
@@ -34,6 +40,8 @@
     + [Fast R-CNN](#fast-r-cnn)
     + [Faster R-CNN](#faster-r-cnn)
     + [YOLO](#yolo)
+- [Semantic Segmentation](#semantic-segmentation)
+    + [FCN](#fcn)
 
 <!-- tocstop -->
 
@@ -231,14 +239,66 @@ x += - learning_rate * m / (np.sqrt(v) + eps)
 ```
 * Search for hyperparameters on log scale. For example, a typical sampling of the learning rate would look as follows: learning_rate = 10 ** uniform(-6, 1)
 
-#### Convolutional Networks
+#### Layers
+
+##### Convolutional and Pooling Layer
 
 * Conv -> ReLU -> Pool
 * ![image](https://github.com/pfrcks/machine-learning/blob/master/cnn.png?raw=true)
-* Dilation: This can be very useful in some settings to use in conjunction with 0-dilated filters because it allows you to merge spatial information across the inputs much more agressively with fewer layers. For example, if you stack two 3x3 CONV layers on top of each other then you can convince yourself that the neurons on the 2nd layer are a function of a 5x5 patch of the input (we would say that the effective receptive field of these neurons is 5x5). If we use dilated convolutions then this effective receptive field would grow much quicker.
+* Dilation: This can be very useful in some settings to use in conjunction with 0-dilated filters because it allows you to merge spatial information across the inputs much more agressively with fewer layers. For example, if you stack two 3x3 CONV layers on top of each other then you can convince yourself that the neurons on the 2nd layer are a function of a 5x5 patch of the input (we would say that the effective receptive field of these neurons is 5x5). If we use dilated convolutions then this effective receptive field would grow much quicker. A 3x3 kernel with a dilation rate of 2 will have the same field of view as a 5x5 kernel, while only using 9 parameters
 * ![image](https://github.com/pfrcks/machine-learning/blob/master/pool.png?raw=true)
 * Conversely, any FC layer can be converted to a CONV layer. For example, an FC layer with K=4096 that is looking at some input volume of size 7×7×512 can be equivalently expressed as a CONV layer with F=7,P=0,S=1,K=4096. In other words, we are setting the filter size to be exactly the size of the input volume, and hence the output will simply be 1×1×4096 since only a single depth column “fits” across the input volume, giving identical result as the initial FC layer.
 * A neuron on the second CONV layer has a 3x3 view of the first CONV layer, and hence by extension a 5x5 view of the input volume. Similarly, a neuron on the third CONV layer has a 3x3 view of the 2nd CONV layer, and hence a 7x7 view of the input volume. Suppose that instead of these three layers of 3x3 CONV, we only wanted to use a single CONV layer with 7x7 receptive fields. These neurons would have a receptive field size of the input volume that is identical in spatial extent (7x7), but with several disadvantages. First, the neurons would be computing a linear function over the input, while the three stacks of CONV layers contain non-linearities that make their features more expressive. Second, if we suppose that all the volumes have C channels, then it can be seen that the single 7x7 CONV layer would contain C×(7×7×C)=49C2 parameters, while the three 3x3 CONV layers would only contain 3×(C×(3×3×C))=27C2 parameters.
+* zero padding `= (k-1)/2` where k is filter size
+* output size `= (w-k+2P)/2 +1` where w is input size, p is padding and s is stride
+* No. of FLOPS : input depth x output depth x o/p_feature_map_width x o/p_feature_map_height x kernel_width x kernel_height
+* Pooling layers help prevent overfitting and reduce computation
+* CNN gives location invariance while Pooling gives translation, rotation and scaling invariance
+* The output volume depth is equal to the number of filters
+* In the output volume, the d-th depth slice (of size W2 × H2 is the result of performing a valid convolution of the d-th filter over the input volume with a stride of S, and then offset by d-th bias.
+* Normally, in the same conv layer, all filters have the same dimensions so that special optimized routines can be invoked.
+
+##### Batch Norm Layer
+
+Batch normalization potentially helps in two ways: faster learning and higher overall accuracy. The improved method also allows you to use a higher learning rate, potentially providing another boost in speed.
+
+As the data flows through a deep network, the weights and parameters adjust those values, sometimes making the data too big or too small again - a problem the authors refer to as ”internal covariate shift”. By normalizing the data in each mini-batch, this problem is largely avoided. Adding batch normalization normally slows 30%.
+
+ut the problem appears in the intermediate layers because the distribution of the activations is constantly changing during training. This slows down the training process because each layer must learn to adapt themselves to a new distribution in every training step. This problem is known as internal covariate shift.<Paste>
+
+Covariate shift refers to the change in the input distribution to a learning system. In the case of deep networks, the input to each layer is affected by parameters in all the input layers. So even small changes to the network get amplified down the network. This leads to change in the input distribution to internal layers of the deep network and is known as internal covariate shift.
+
+So what you usually have are fully connected or convoluational layers followed by batch normal- ization layer before the non-linearity. So they ensure that everything is roughly unit Gaussian at each step of the neural net. One problem is that its not clear that tanh wants exactly unit Gaussian. Because you what tanh to be able to make its outputs more or less defused (more or less saturated) so right now it would not be able to do that.
+
+To solve this you do not only normalize X but you also allow the network to shift by gamma and add B. So after you have centred your data you are allowing the network through the backprop to shift and scale the distribution. Also note that the network can learn to undo this layer (it can learn to have the batch normalization layer to be an identity)
+
+It acts somehow as a way of regularization because with batch norm when you have some kind of input x and it goes through the network its representation in some layer of the network is basically not only function of it but also whatever other examples are with x in the batch. Normally all examples are processed independently in parallel, but batch norm tides them together and so your representation at some layer is a function on whatever batch you happen to be sampled in at what it does is to jigger your place in the representation space in that layer. Which is a nice regularizer effect
+
+Consequently, batch normalization adds two trainable parameters to each layer, so the normalized output is multiplied by a “standard deviation” parameter (gamma) and add a “mean” parameter (beta). In other words, batch normalization lets SGD do the denormalization by changing only these two weights for each activation, instead of losing the stability of the network by changing all the weights.
+
+During testing, a single mean is used(calculated using running average of mean during train time)
+
+##### Upsampling Layer(Deconv/Transposed conv)
+
+Transposed convolutions – also called fractionally strided convolutions – work by swapping the forward and backward passes of a convolution. One way to put it is to note that the kernel defines a convolution, but whether its a direct convolution or a transposed convolution is determined by how the forward and backward passes are computed.
+The transposed convolution is implemented as the backward pass of a corresponding non- transposed convolution. It can be thought of as dilating the input (by adding “stride - 1” zeros between adjacent input elements), padding it with the needed number of zeros so it is not out. And then, apply the convolution with the filter flipped 180 degrees.
+
+Deconvolution layer is a very unfortunate name and should rather be called a transposed convolutional layer.
+
+Visually, for a transposed convolution with stride one and no padding, we just pad the original input (blue entries) with zeroes (white entries) (Figure 1).
+
+##### Skip connections
+
+There was some information that was captured in the initial layers and was required for reconstruction during the up-sampling done using the FCN layer. If we would not have used the skip architecture that information would have been lost (or should say would have turned too abstract for it to be used further ). So the information that we had in the primary layers can be fed explicitly to the later layers using the skip architecture.
+
+##### Fully connected layer
+
+
+FC layers, also called affine layers, produce the high-level reasoning in the DNN. Neurons in a fully connected layer have full connections to all activations in the previous layer, as in regular Neural Networks. Their activations can hence be computed with a matrix multiplication followed by a bias offset.
+
+##### Highway Layer
+
+A Highway Layer is a type of Neural Network layer that uses a gating mechanism to control the information flow through a layer. Stacking multiple Highway Layers allows for training of very deep networks. Highway Layers work by learning a gating function that chooses which parts of the inputs to pass through and which parts to pass through a transformation function, such as a standard affine layer for example. The basic formulation of a Highway Layer is T * h(x) + (1 - T) * x, where T is the learned gating function with values between 0 and 1, h(x) is an arbitrary input transformation and x is the input. Note that all of these must have the same size.
 
 #### Transfer Learning
 
@@ -248,13 +308,7 @@ x += - learning_rate * m / (np.sqrt(v) + eps)
 * New dataset is large and very different from the original dataset. Since the dataset is very large, we may expect that we can afford to train a ConvNet from scratch. However, in practice it is very often still beneficial to initialize with weights from a pretrained model. In this case, we would have enough data and confidence to fine-tune through the entire network.
 
 
-## Notes on CNNs
-
-* zero padding `= (k-1)/2` where k is filter size
-* output size `= (w-k+2P)/2 +1` where w is input size, p is padding and s is stride
-* No. of FLOPS : input depth x output depth x o/p_feature_map_width x o/p_feature_map_height x kernel_width x kernel_height
-* Pooling layers help prevent overfitting and reduce computation
-* CNN gives location invariance while Pooling gives translation, rotation and scaling invariance
+## Popular architectures
 
 #### AlexNet
 
@@ -298,21 +352,35 @@ Use N anchor boxes at each location. Anchors are translation invariant: use the 
 For each of this anchor boxes it produces a score weather there is an object or not; and a finer localization with reference to the anchor (they are an offset to the anchor boxes)
 So you are learning different weights for each anchor.
 One network, four losses
-• RPN classification (anchor good / bad)
-• RPN regression (anchor to proposal)
-• Fast R-CNN classification (over classes)
-• Fast R-CNN regression (proposal to box)
+* RPN classification (anchor good / bad)
+* RPN regression (anchor to proposal)
+* Fast R-CNN classification (over classes)
+* Fast R-CNN regression (proposal to box)
 
 #### YOLO
 
 The idea is to solve detection as only a regression problem. Direct prediction using a CNN. Divide image into S × S grid, they use S = 7. The, within each grid cell predict
-• B boxes: 4 coordinates + confidence, they use B = 2
-• Class scores: C numbers
+* B boxes: 4 coordinates + confidence, they use B = 2
+* Class scores: C numbers
 Regression from input image to output S × S × (5 ∗ B + C) tensor.
 It can go at real-time at the expense of lower mAP than Faster R-CNN.
 
 How YOLO works is that we take an image and split it into an SxS grid, within each of the grid we take m bounding boxes. For each of the bounding box, the network outputs a class probability and offset values for the bounding box. The bounding boxes having the class probability above a threshold value is selected and used to locate the object within the image.
 
+## Semantic Segmentation
 
+Segmentation task is different from classification task because it requires predicting a class for each pixel of the input image, instead of only 1 class for the whole input. Classification needs to understand what is in the input (namely, the context). However, in order to predict what is in the input for each pixel, segmentation needs to recover not only what is in the input, but also where.
 
+#### FCN
+
+Fully Convolutional Networks (FCNs) owe their name to their architecture, which is built only from locally connected layers, such as convolution, pooling and upsampling. Note that no dense layer is used in this kind of architecture. This reduces the number of parameters and computation time. Also, the network can work regardless of the original image size, without requiring any fixed number of units at any stage, givent that all connections are local. To obtain a segmentation map (output), segmentation networks usually have 2 parts :
+
+* Downsampling path : capture semantic/contextual information
+* Upsampling path : recover spatial information
+
+The downsampling path is used to extract and interpret the context (what), while the upsampling path is used to enable precise localization (where). Furthermore, to fully recover the fine-grained spatial information lost in the pooling or downsampling layers, we often use skip connections.
+
+A skip connection is a connection that bypasses at least one layer. Here, it is often used to transfer local information by concatenating or summing feature maps from the downsampling path with feature maps from the upsampling path. Merging features from various resolution levels helps combining context information with spatial information.
+
+Metrics: Per pixel accuracy, Intersection over union
 

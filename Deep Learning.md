@@ -29,6 +29,11 @@
     + [AlexNet](#alexnet)
     + [VGGNet](#vggnet)
     + [GoogLeNet](#googlenet)
+- [Object Detection](#object-detection)
+    + [R-CNN(Region based CNN)](#r-cnnregion-based-cnn)
+    + [Fast R-CNN](#fast-r-cnn)
+    + [Faster R-CNN](#faster-r-cnn)
+    + [YOLO](#yolo)
 
 <!-- tocstop -->
 
@@ -229,9 +234,9 @@ x += - learning_rate * m / (np.sqrt(v) + eps)
 #### Convolutional Networks
 
 * Conv -> ReLU -> Pool
-* ![image](cnn.png)
+* ![image](https://github.com/pfrcks/machine-learning/blob/master/cnn.png?raw=true)
 * Dilation: This can be very useful in some settings to use in conjunction with 0-dilated filters because it allows you to merge spatial information across the inputs much more agressively with fewer layers. For example, if you stack two 3x3 CONV layers on top of each other then you can convince yourself that the neurons on the 2nd layer are a function of a 5x5 patch of the input (we would say that the effective receptive field of these neurons is 5x5). If we use dilated convolutions then this effective receptive field would grow much quicker.
-* ![image](pool.png)
+* ![image](https://github.com/pfrcks/machine-learning/blob/master/pool.png?raw=true)
 * Conversely, any FC layer can be converted to a CONV layer. For example, an FC layer with K=4096 that is looking at some input volume of size 7×7×512 can be equivalently expressed as a CONV layer with F=7,P=0,S=1,K=4096. In other words, we are setting the filter size to be exactly the size of the input volume, and hence the output will simply be 1×1×4096 since only a single depth column “fits” across the input volume, giving identical result as the initial FC layer.
 * A neuron on the second CONV layer has a 3x3 view of the first CONV layer, and hence by extension a 5x5 view of the input volume. Similarly, a neuron on the third CONV layer has a 3x3 view of the 2nd CONV layer, and hence a 7x7 view of the input volume. Suppose that instead of these three layers of 3x3 CONV, we only wanted to use a single CONV layer with 7x7 receptive fields. These neurons would have a receptive field size of the input volume that is identical in spatial extent (7x7), but with several disadvantages. First, the neurons would be computing a linear function over the input, while the three stacks of CONV layers contain non-linearities that make their features more expressive. Second, if we suppose that all the volumes have C channels, then it can be seen that the single 7x7 CONV layer would contain C×(7×7×C)=49C2 parameters, while the three 3x3 CONV layers would only contain 3×(C×(3×3×C))=27C2 parameters.
 
@@ -269,3 +274,45 @@ x += - learning_rate * m / (np.sqrt(v) + eps)
 *  one of the first CNN architectures that really strayed from the general approach of simply stacking conv and pooling layers on top of each other in a sequential structure.
 *   9 Inception modules in the whole architecture,
 *   No use of fully connected layers! They use an average pool instead, to go from a 7x7x1024 volume to a 1x1x1024 volume. This saves a huge number of parameters.
+
+## Object Detection
+
+#### R-CNN(Region based CNN)
+
+We use selective search to extract just 2000 regions from the image and he called them region proposals. First run a region proposal algorithm to obtain regions of interets. Then, warp this regions into a fixed size and run the ConvNet with regression head and classification head. The regression head objective is to output an offset to correct ”slightly wrong” region proposals.
+Issues with RCNN
+
+* Slow at test time
+* SVM and regressor are post hoc
+* selective search algorithm is a fixed algorithm. Therefore, no learning is happening at that stage
+
+#### Fast R-CNN
+
+Swap the order of extracting ROI and features. The input image is processed by Conv and ROIs(Project region proposal onto conv feature map) are proposed on it. Since FC layers expect fix size, we divide each ROI into a h*w size grid and do max pooling in each grid cell
+
+#### Faster R-CNN
+
+To solve the problem of region proposals algorithm botleneck in Fast R-CNN, Faster R-CNN proposes to extract the regions of interest with another network using the information of the last layer of the CNN net.
+
+Use N anchor boxes at each location. Anchors are translation invariant: use the same ones at every location. For all the feature map points, at the original input image apply all anchors to the point corresponding to the current feature map point. So we take as features the convolutional feature map region corresponding to the anchor region in the original image.
+For each of this anchor boxes it produces a score weather there is an object or not; and a finer localization with reference to the anchor (they are an offset to the anchor boxes)
+So you are learning different weights for each anchor.
+One network, four losses
+• RPN classification (anchor good / bad)
+• RPN regression (anchor to proposal)
+• Fast R-CNN classification (over classes)
+• Fast R-CNN regression (proposal to box)
+
+#### YOLO
+
+The idea is to solve detection as only a regression problem. Direct prediction using a CNN. Divide image into S × S grid, they use S = 7. The, within each grid cell predict
+• B boxes: 4 coordinates + confidence, they use B = 2
+• Class scores: C numbers
+Regression from input image to output S × S × (5 ∗ B + C) tensor.
+It can go at real-time at the expense of lower mAP than Faster R-CNN.
+
+How YOLO works is that we take an image and split it into an SxS grid, within each of the grid we take m bounding boxes. For each of the bounding box, the network outputs a class probability and offset values for the bounding box. The bounding boxes having the class probability above a threshold value is selected and used to locate the object within the image.
+
+
+
+

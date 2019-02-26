@@ -30,6 +30,7 @@
     + [Gradient Boosted Decision Tree](#gradient-boosted-decision-tree)
     + [Ensemble Techniques](#ensemble-techniques)
 - [Decision Trees](#decision-trees)
+- [Loss functions](#loss-functions)
 - [Paper](#paper)
 
 <!-- tocstop -->
@@ -217,6 +218,9 @@ https://github.com/ShuaiW/ml-interview#Decision tree
     * based towards multivalued attributes.
     * favor equal-sized partitions
 
+## Loss functions
+
+![image](https://github.com/pfrcks/machine-learning/blob/master/loss.png?raw=true)
 
 
 ## Paper

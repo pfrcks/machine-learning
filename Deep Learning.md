@@ -64,9 +64,26 @@ In theory, it can also be helpful to remove correlations between features by usi
 
 #### Dropout
 
-Dropout provides an easy way to improve performance. It’s trivial to implement and there’s little reason to not do it. Remember to tune the dropout probability, and to not forget to turn off Dropout and to multiply the weights by (namely by 1-dropout probability) at test time. Also, be sure to train the network for longer. Unlike normal training, where the validation error often starts increasing after prolonged training, dropout nets keep getting better and better the longer you train them. So be patient.
+* Dropout provides an easy way to improve performance. It’s trivial to implement and there’s little reason to not do it. Remember to tune the dropout probability, and to not forget to turn off Dropout and to multiply the weights by (namely by 1-dropout probability) at test time. Also, be sure to train the network for longer. Unlike normal training, where the validation error often starts increasing after prolonged training, dropout nets keep getting better and better the longer you train them. So be patient.
 
- During training, dropout can be interpreted as sampling a Neural Network within the full Neural Network, and only updating the parameters of the sampled network based on the input data. (However, the exponential number of possible sampled networks are not independent because they share the parameters.) During testing there is no dropout applied, with the interpretation of evaluating an averaged prediction across the exponentially-sized ensemble of all sub-networks (more about ensembles in the next section). I
+* During training, dropout can be interpreted as sampling a Neural Network within the full Neural Network, and only updating the parameters of the sampled network based on the input data. (However, the exponential number of possible sampled networks are not independent because they share the parameters.) During testing there is no dropout applied, with the interpretation of evaluating an averaged prediction across the exponentially-sized ensemble of all sub-networks (more about ensembles in the next section).
+
+*  Dropout makes the network unable to relay on a single feature. Thus, forcing it to generate redundant representation. In this way, you will be representing an object with redundant descriptors, detectors, etc. So in test time, if some features can not be detected, you still can really on the other ones.
+
+* With p = 0.5 dropout prob, using all inputs in the forward pass would inflate the activations by 2x from what the network was ”used to” during training. Thus, you have to compensate by scaling the activations back down by 1/2. In this way, the ouput at test time is equal to the expected output at training time. Let’s see a naive implementation:
+
+```python
+	def train_step(X):
+	# forward pass for example 3−layer neural network
+	## Inverted dropout
+		H1 = np.maximum(0, np.dot(W1, X) + b1)
+		U1 = (np.random.rand(∗H1.shape) < p) / p # first dropout mask. Notice /p!
+		H1 ∗= U1 # drop!
+		H2 = np.maximum(0, np.dot(W2, H1) + b2)
+		U2 = (np.random.rand(∗H2.shape) < p) / p # second dropout mask. Notice /p!
+		H2 ∗= U2 # drop!
+		out = np.dot(W3, H2) + b3
+```
 
 #### Variance Calibration
 
@@ -84,7 +101,7 @@ This is for calibrating neurons without ReLU. For ReLU use He et al. initializat
 #### Activation Functions
 
 * Sigmoid : Saturate or kill gradients
-	* this (local) gradient will be multiplied to the gradient of this gate's output for the whole objective. Therefore, if the local gradient is very small, it will effectively “kill” the gradient and almost no signal will flow through the neuron to its weights and recursively to its data. Additionally, one must pay extra caution when initializing the weights of sigmoid neurons to prevent saturation. For example, if the initial weights are too large then most neurons would become saturated and the network will barely learn.
+	* this (S)(1-S) where S is the sigmoid func (local) gradient will be multiplied to the gradient of this gate's output for the whole objective. Therefore, if the local gradient is very small, it will effectively “kill” the gradient and almost no signal will flow through the neuron to its weights and recursively to its data. Additionally, one must pay extra caution when initializing the weights of sigmoid neurons to prevent saturation. For example, if the initial weights are too large then most neurons would become saturated and the network will barely learn.
 	* Sigmoid outputs are not zero-centered. This is undesirable since neurons in later layers of processing in a Neural Network (more on this soon) would be receiving data that is not zero-centered. This has implications on the dynamics during gradient descent, because if the data coming into a neuron is always positive (e.g., x>0 element wise in f=w^Tx+b), then the gradient on the weights w will during back-propagation become either all be positive, or all negative (depending on the gradient of the whole expression f). This could introduce undesirable zig-zagging dynamics in the gradient updates for the weights. However, notice that once these gradients are added up across a batch of data the final update for the weights can have variable signs, somewhat mitigating this issue. Therefore, this is an inconvenience but it has less severe consequences compared to the saturated activation problem above.
 
 * tanh : saturates but is zero centered

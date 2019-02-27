@@ -36,16 +36,18 @@
     + [VGGNet](#vggnet)
     + [GoogLeNet](#googlenet)
     + [ResNet](#resnet)
-- [Object Detection](#object-detection)
-    + [R-CNN(Region based CNN)](#r-cnnregion-based-cnn)
-    + [Fast R-CNN](#fast-r-cnn)
-    + [Faster R-CNN](#faster-r-cnn)
-    + [YOLO](#yolo)
-- [Semantic Segmentation](#semantic-segmentation)
-    + [FCN](#fcn)
-- [Classification](#classification)
-- [Classification + Localization](#classification--localization)
-- [Instance Segmentation](#instance-segmentation)
+- [Applications](#applications)
+    + [Object Detection](#object-detection)
+      - [R-CNN(Region based CNN)](#r-cnnregion-based-cnn)
+      - [Fast R-CNN](#fast-r-cnn)
+      - [Faster R-CNN](#faster-r-cnn)
+      - [YOLO](#yolo)
+    + [Semantic Segmentation](#semantic-segmentation)
+      - [FCN](#fcn)
+    + [Classification](#classification)
+    + [Classification + Localization](#classification--localization)
+    + [Instance Segmentation](#instance-segmentation)
+- [Recurrent Neural Networks](#recurrent-neural-networks)
 
 <!-- tocstop -->
 
@@ -343,9 +345,11 @@ A Highway Layer is a type of Neural Network layer that uses a gating mechanism t
 Let H(x) be a function that you desire to obtian. In a typical net you would compute a squence of steps ReLu(ReLu(xw1+b1)*w2+b2) to transform x to H(x). Instead, in a ResNet you compute a delta to be added to the original input to obtain H(x).
 What is nice about it is that in plain nets, gradients must flow through all the transforma- tions. Instead, in residual nets because it is addition (distributes the gradient equally to all its children), the gradient with flow through the (weights, ReLU) but will also skip this transformations and will go directly to the previous part and flow directly to the previous block. So the gradients can skip all the transformations and go directly to the first layer. In this way, you can train very fast the first layer which is doing simple statistics, and the rest of layers will learn to add to the single in between to make it work at the end.
 
-## Object Detection
+## Applications
 
-#### R-CNN(Region based CNN)
+#### Object Detection
+
+##### R-CNN(Region based CNN)
 
 We use selective search to extract just 2000 regions from the image and he called them region proposals. First run a region proposal algorithm to obtain regions of interets. Then, warp this regions into a fixed size and run the ConvNet with regression head and classification head. The regression head objective is to output an offset to correct ”slightly wrong” region proposals.
 Issues with RCNN
@@ -354,11 +358,11 @@ Issues with RCNN
 * SVM and regressor are post hoc
 * selective search algorithm is a fixed algorithm. Therefore, no learning is happening at that stage
 
-#### Fast R-CNN
+##### Fast R-CNN
 
 Swap the order of extracting ROI and features. The input image is processed by Conv and ROIs(Project region proposal onto conv feature map) are proposed on it. Since FC layers expect fix size, we divide each ROI into a h*w size grid and do max pooling in each grid cell
 
-#### Faster R-CNN
+##### Faster R-CNN
 
 To solve the problem of region proposals algorithm botleneck in Fast R-CNN, Faster R-CNN proposes to extract the regions of interest with another network using the information of the last layer of the CNN net.
 
@@ -371,7 +375,7 @@ One network, four losses
 * Fast R-CNN classification (over classes)
 * Fast R-CNN regression (proposal to box)
 
-#### YOLO
+##### YOLO
 
 The idea is to solve detection as only a regression problem. Direct prediction using a CNN. Divide image into S × S grid, they use S = 7. The, within each grid cell predict
 * B boxes: 4 coordinates + confidence, they use B = 2
@@ -381,9 +385,10 @@ It can go at real-time at the expense of lower mAP than Faster R-CNN.
 
 How YOLO works is that we take an image and split it into an SxS grid, within each of the grid we take m bounding boxes. For each of the bounding box, the network outputs a class probability and offset values for the bounding box. The bounding boxes having the class probability above a threshold value is selected and used to locate the object within the image.
 
-## Semantic Segmentation
+#### Semantic Segmentation
 
 Segmentation task is different from classification task because it requires predicting a class for each pixel of the input image, instead of only 1 class for the whole input. Classification needs to understand what is in the input (namely, the context). However, in order to predict what is in the input for each pixel, segmentation needs to recover not only what is in the input, but also where.
+(A good resources)[https://www.jeremyjordan.me/semantic-segmentation/]
 
 Three common strategies are used:
 
@@ -391,7 +396,7 @@ Three common strategies are used:
 * Refinement
 * Upsampling
 
-#### FCN
+##### FCN
 
 Fully Convolutional Networks (FCNs) owe their name to their architecture, which is built only from locally connected layers, such as convolution, pooling and upsampling. Note that no dense layer is used in this kind of architecture. This reduces the number of parameters and computation time. Also, the network can work regardless of the original image size, without requiring any fixed number of units at any stage, givent that all connections are local. To obtain a segmentation map (output), segmentation networks usually have 2 parts :
 
@@ -404,11 +409,11 @@ A skip connection is a connection that bypasses at least one layer. Here, it is 
 
 Metrics: Per pixel accuracy, Intersection over union
 
-## Classification
+#### Classification
 
 Train a classification model with softmax loss. The input is the entire image and the output are C probabilities (one per class) of being in the image.
 
-## Classification + Localization
+#### Classification + Localization
 
 *  Train (or download) a classification model (AlexNet, VGG, GoogLeNet)
 * Attach a new fully-connected ”regression head” to the network to compute bounding boxes (x,y,w,h)
@@ -417,7 +422,7 @@ Train a classification model with softmax loss. The input is the entire image an
     - Classification head: Output are C numbers(one per class)
     - Regression head: Class agnostic gives 4 numbers(BB), class specific gives C*4
 
-## Instance Segmentation
+#### Instance Segmentation
 
 Detect instance, generate mask. Similar pipelines to object detection.
 
@@ -429,3 +434,7 @@ Detect instance, generate mask. Similar pipelines to object detection.
 6. Refine the proposed region
 
 Very similar to RCNN. Another FRCNN type which From the high resolution feature map propose regions, then reshape boxes and finally mask background and predict object class.
+
+## Recurrent Neural Networks
+
+[Visual Guide](https://towardsdatascience.com/illustrated-guide-to-lstms-and-gru-s-a-step-by-step-explanation-44e9eb85bf21)
